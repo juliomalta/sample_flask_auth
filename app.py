@@ -40,6 +40,19 @@ def logout():
     logout_user()
     return jsonify({'message': 'User logged out'}), 200
 
+@app.route('/user', methods=['POST'])
+def create_user():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    if username and password:
+        user = User(username=username, password=password)
+        db.session.add(user)
+        db.session.commit()
+        return jsonify({'message': 'User created'}), 201
+    
+    return jsonify({'message': 'Username and password are required'}), 401
+    
 @app.route('/hello', methods=['GET'])
 def hello():
     return 'Hello, World!'
