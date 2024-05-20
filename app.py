@@ -52,7 +52,48 @@ def create_user():
         return jsonify({'message': 'User created'}), 201
     
     return jsonify({'message': 'Username and password are required'}), 401
+
+# Começo de uma rota exploratória dos dados do usuário.
+@app.route('/user/<int:id>', methods=['GET'])
+@login_required
+def read_user(id_user):
+    user = User.query.get(id_user)
     
+    if user:
+        # return jsonify({'username': user.username}), 200
+        return jsonify({'message': f'Usuário {user.username} encontrado'}), 200
+    return jsonify({'message': 'User not found'}), 404
+    
+@app.route('/user/<int:id>', methods=['PUT'])
+@login_required
+def update_user(id_user):
+    user = User.query.get(id_user)
+    data = request.json
+    ## username = data.get('username')
+    password = data.get('password')
+    # if user and data.get('password'):
+    if user:
+        ## user.username = username
+        user.password = password
+        db.session.commit()
+        return jsonify({'message': 'User {id_user} updated'}), 200
+    return jsonify({'message': 'User not found'}), 404
+
+@app.route('/user/<int:id>', methods=['DELETE'])
+@login_required
+def delete_user(id_user):
+    user = User.query.get(id_user)
+    
+    if id_user == current_user.id:
+        return jsonify({'message': 'You cannot delete yourself'}), 403
+    
+    if user:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({'message': 'User deleted'}), 200
+    return jsonify({'message': 'User not found'}), 404
+
+
 @app.route('/hello', methods=['GET'])
 def hello():
     return 'Hello, World!'
